@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ca.bcit.comp2522.quizapp.QuizController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+
+    <Label fx:id="titleText" text="Trivia Time"/>
+    <Label fx:id="titleCaption" text="Answer some questions, "/>
+    <TextField fx:id="answerInput"/>
+
+    <HBox fx:id="buttonContainer" alignment="CENTER" id="buttonBar">
+        <Button fx:id="startButton" text="START" onAction="#onStartButtonClick"/>
+        <Button fx:id="submitButton" text="SUBMIT" onAction="#onSubmitButtonClick" visible="false"/>
+    </HBox>
+</VBox>
