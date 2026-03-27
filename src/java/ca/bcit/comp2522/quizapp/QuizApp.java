@@ -28,9 +28,7 @@ import java.util.random.RandomGenerator;
 public class QuizApp
         extends Application
 {
-    /*
-     * Internal class that tracks the player's individual question record for the current round.
-     */
+    /* Internal class that tracks the player's individual question record for the current round. */
     private record AskedQuestion(Question questionAsked, boolean wasCorrect) {}
 
     private static final int WINDOW_WIDTH_DEFAULT = 400;

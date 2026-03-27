@@ -61,10 +61,11 @@ public class QuizController
     @FXML
     private Button multiButton;
 
-    /* Advance scene to next question. */
+    /* Advance scene to next question. Disabled while user is working on current question. */
     @FXML
     private Button nextButton;
 
+    /* Text field for inputting answer. */
     @FXML
     private TextField answerInput;
 
@@ -111,6 +112,11 @@ public class QuizController
         onNextButtonClick(event);
     }
 
+    /**
+     * Set the stage to a new question, clearing previous text input, re-enabling buttons for submitting answers, and disabling the next question button.
+     *
+     * @param event Unused.
+     */
     @FXML
     void onNextButtonClick(final Event event)
     {
