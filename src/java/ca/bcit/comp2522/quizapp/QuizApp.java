@@ -16,6 +16,7 @@ import java.nio.file.Path;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 /**
  * Handles the quiz presentation logic.
@@ -46,15 +47,17 @@ public class QuizApp
     private static final int POINTS_WRONG = 0;
     private static final int QUESTIONS_PER_ROUND = 10;
     private static final int SCORE_INITIAL = 0;
-    private static final int QUESTION_NUMBER_INITIAL = 1;
+    private static final int QUESTION_NUMBER_INITIAL = 0;
+    private static final int QUESTION_BANK_LBOUND = 0;
 
     private final List<Question> questionList;
     private final List<AskedQuestion> answeredList;
-    private final int questionListSize;
     private Question presentedQuestion;
+    private final RandomGenerator rgen;
 
     private Scene activeScene;
     private Stage currentStage;
+    private QuizController vc;
 
     private int questionNumber;
     private int playerScore;
@@ -67,8 +70,8 @@ public class QuizApp
         super();
 
         this.questionList = parseQuestions();
-        this.questionListSize = this.questionList.size();
         this.answeredList = new ArrayList<>();
+        this.rgen = RandomGenerator.getDefault();
 
         this.reset();
     }
@@ -88,6 +91,8 @@ public class QuizApp
         loader = new FXMLLoader(QuizApp.class.getResource(SCENE_FILE_NAME));
         this.activeScene = new Scene(loader.load(), WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
         this.currentStage = stage;
+        this.vc = loader.getController();
+        this.vc.setAppRef(this);
 
         stage.setTitle(WINDOW_TITLE);
         stage.setScene(this.activeScene);
@@ -121,11 +126,15 @@ public class QuizApp
         }
         catch (final URISyntaxException synEx)
         {
-            throw new IllegalArgumentException("URI conversion failed: " + quizUrl.toString());
+            throw new IllegalArgumentException("URI conversion failed: " + quizUrl);
         }
-
     }
 
+    /*
+     * Loads questions from text file into memory.
+     *
+     * @return List containing question and answer text.
+     */
     private static List<Question> parseQuestions()
     {
         final Path quizFilePath;
@@ -171,12 +180,66 @@ public class QuizApp
         this.questionNumber = QUESTION_NUMBER_INITIAL;
     }
 
-    /*
-     * Present a quiz question to the user.
+    /**
+     * Advance quiz state to the next question
      */
-    private void askQuestion()
+    public String advanceQuestion()
     {
+        final int nextQuestionIndex;
 
+        nextQuestionIndex = rgen.nextInt(
+                QUESTION_BANK_LBOUND,
+                this.questionList.size()
+        );
+
+        this.presentedQuestion = this.questionList.get(nextQuestionIndex);
+        this.questionNumber++;
+
+        return this.presentedQuestion.question();
+    }
+
+    /**
+     * Getter for the question the quiz should currently be presenting.
+     *
+     * @return Question object that contains both question and answer.
+     */
+    public Question getPresentedQuestion()
+    {
+        return this.presentedQuestion;
+    }
+
+    /**
+     * Check the user's guess and return the result.
+     *
+     * @param guess User's inputted answer.
+     *
+     * @return True if the user's input is accepted as a correct answer.
+     */
+    public boolean checkAnswer(final String guess)
+    {
+        final boolean result;
+        final AskedQuestion recordEntry;
+
+        result = this.presentedQuestion.checkAnswer(guess);
+        recordEntry = new AskedQuestion(this.presentedQuestion, result);
+
+        if (result)
+        {
+            playerScore += POINTS_CORRECT;
+        }
+        else
+        {
+            playerScore += POINTS_WRONG;
+        }
+
+        this.answeredList.add(recordEntry);
+
+        return result;
+    }
+
+    public int getQuestionNumber()
+    {
+        return this.questionNumber;
     }
 
     /**
