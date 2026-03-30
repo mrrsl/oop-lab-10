@@ -22,14 +22,20 @@ import java.util.random.RandomGenerator;
  * Handles the quiz presentation logic.
  *
  * @author Morris Li
+ * @author Raphael Berthaud
  *
  * @version 0.1
  */
 public class QuizApp
         extends Application
 {
-    /* Internal class that tracks the player's individual question record for the current round. */
-    private record AskedQuestion(Question questionAsked, boolean wasCorrect) {}
+    /**
+     * Data for tracking the player's individual question record for the current round.
+     *
+     * @param questionAsked {@link Question} instance representing a question that was displayed to the player.
+     * @param wasCorrect Set to true if it was answered correctly, falsed otherwise.
+     */
+    public record AskedQuestion(Question questionAsked, boolean wasCorrect) {}
 
     private static final int WINDOW_WIDTH_DEFAULT = 400;
     private static final int WINDOW_HEIGHT_DEFAULT = 200;
@@ -235,9 +241,34 @@ public class QuizApp
         return result;
     }
 
+    /**
+     * Get the number of the currently displayed question.
+     *
+     * @return 1-indexed number of the current question.
+     */
     public int getQuestionNumber()
     {
         return this.questionNumber;
+    }
+
+    /**
+     * Determine if the quiz should be reset due to reaching the maximum number of questions
+     *
+     * @return True if quiz is finished.
+     */
+    public boolean shouldReset()
+    {
+        return this.questionNumber >= QUESTIONS_PER_ROUND;
+    }
+
+    /**
+     * Gets a list of questions that have been answered by the user in the current round.
+     *
+     * @return List containing a copy of the questions presented and whether the user answered them correctly.
+     */
+    public List<AskedQuestion> getQuestionHistory()
+    {
+        return this.answeredList;
     }
 
     /**
