@@ -19,17 +19,34 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 
 /**
- * Handles the quiz presentation logic.
+ * Handles these quiz responsibilities:
+ * <ul>
+ * <li>Tracks questions asked and user's answers</li>
+ * <li>Determines if quiz has been completed</li>
+ * <li>Manages the question bank and determines the questions that will be asked</li>
+ * </ul>
+ * Important methods for the scene quiz controller:
+ * <ul>
+ * <li>reset(): Resets the number of questions asked</li>
+ * <li>advanceQuestion(): Move on the next question and get the text for it</li>
+ * <li>shouldReset(): Controller should call this to see if quiz is complete</li>
+ * </ul>
  *
  * @author Morris Li
+ * @author Raphael Berthaud
  *
  * @version 0.1
  */
 public class QuizApp
         extends Application
 {
-    /* Internal class that tracks the player's individual question record for the current round. */
-    private record AskedQuestion(Question questionAsked, boolean wasCorrect) {}
+    /**
+     * Data for tracking the player's individual question record for the current round.
+     *
+     * @param questionAsked {@link Question} instance representing a question that was displayed to the player.
+     * @param wasCorrect Set to true if it was answered correctly, falsed otherwise.
+     */
+    public record AskedQuestion(Question questionAsked, boolean wasCorrect) {}
 
     private static final int WINDOW_WIDTH_DEFAULT = 400;
     private static final int WINDOW_HEIGHT_DEFAULT = 200;
@@ -183,6 +200,11 @@ public class QuizApp
      */
     public String advanceQuestion()
     {
+        if (this.answeredList.size() >= QUESTIONS_PER_ROUND)
+        {
+            throw new ExceededQuestionLimitException(QUESTIONS_PER_ROUND);
+        }
+
         final int nextQuestionIndex;
 
         nextQuestionIndex = rgen.nextInt(
@@ -219,7 +241,10 @@ public class QuizApp
         final AskedQuestion recordEntry;
 
         result = this.presentedQuestion.checkAnswer(guess);
-        recordEntry = new AskedQuestion(this.presentedQuestion, result);
+        recordEntry = new AskedQuestion(
+                this.presentedQuestion,
+                result
+        );
 
         if (result)
         {
@@ -235,9 +260,44 @@ public class QuizApp
         return result;
     }
 
+    /**
+     * Get the number of the currently displayed question.
+     *
+     * @return 1-indexed number of the current question.
+     */
     public int getQuestionNumber()
     {
         return this.questionNumber;
+    }
+
+    /**
+     * Determine if the quiz should be reset due to reaching the maximum number of questions
+     *
+     * @return True if quiz is finished.
+     */
+    public boolean shouldReset()
+    {
+        return this.answeredList.size() >= QUESTIONS_PER_ROUND;
+    }
+
+    /**
+     * Gets a list of questions that have been answered by the user in the current round.
+     *
+     * @return List containing a copy of the questions presented and whether the user answered them correctly.
+     */
+    public List<AskedQuestion> getQuestionHistory()
+    {
+        return this.answeredList;
+    }
+
+    /**
+     * Getter for points scored by the player.
+     *
+     * @return Points scored on current quiz.
+     */
+    public int getPlayerScore()
+    {
+        return this.playerScore;
     }
 
     /**
