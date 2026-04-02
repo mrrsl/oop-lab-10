@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.geometry.Insets?>
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
@@ -10,7 +13,7 @@
 <BorderPane fx:id="mainContainer" xmlns:fx="http://javafx.com/fxml"
       fx:controller="ca.bcit.comp2522.quizapp.QuizController">
     <center>
-        <VBox alignment="CENTER" >
+        <VBox alignment="CENTER"  fx:id="quizTextContainer">
             <Label fx:id="titleText" text="Welcome to Quick Quiz" wrapText="true"/>
             <Label fx:id="titleCaption" text="Get started here! "/>
             <TextField fx:id="answerInput"/>
@@ -18,22 +21,22 @@
     </center>
     <left>
         <VBox alignment="TOP_CENTER">
-            <Label fx:id="questionNumberLabel">
-
-            </Label>
+            <Label fx:id="questionNumberLabel" text="Question 1"/>
         </VBox>
     </left>
     <right>
-        <VBox alignment="CENTER">
-            <Button fx:id="nextButton" onAction="#onNextButtonClick">
-                Next
-            </Button>
-        </VBox>
+        <Label text="Question 1" visible="false"/>
     </right>
     <bottom>
-        <VBox alignment="CENTER">
+        <HBox spacing="10">
+            <HBox.margin>
+                <Insets left="50"/>
+            </HBox.margin>
+            <Pane HBox.hgrow="ALWAYS"/>
             <Button fx:id="multiButton" text="START" onAction="#onStartButtonClick"/>
-        </VBox>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button fx:id="nextButton" text="Next" onAction="#onNextButtonClick"/>
+        </HBox>
 
     </bottom>
 </BorderPane>

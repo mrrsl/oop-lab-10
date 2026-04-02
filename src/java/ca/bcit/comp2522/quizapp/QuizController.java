@@ -52,6 +52,8 @@ public class QuizController
     private static final String RESULT_BUTTON_PREVIEW_TEXT = "See results";
     private static final String RESULT_BUTTON_NEW_ROUND = "Start a new quiz";
 
+    private static final String ANSWER_BORDER_COLOR_ERROR = "#F54927";
+
     private static final String RESULT_CORRECT_MARKER = "O";
     private static final String RESULT_WRONG_MARKER = "X";
     private static final int RESULT_FOOTER_SIZE = 1;
@@ -193,6 +195,7 @@ public class QuizController
         this.answerInput.setText(null);
         this.answerInput.setDisable(false);
         this.answerInput.setPromptText(TEXT_INPUT_PROMPT);
+        highlightInput(false);
     }
 
     /**
@@ -204,7 +207,18 @@ public class QuizController
      */
     void onSubmitButtonClick(final Event event)
     {
+        final String userGuess;
         final boolean quizFinished;
+
+        userGuess = this.answerInput.getText();
+
+        // Just let the user know they have nothing in the text box
+        if (userGuess == null || userGuess.isBlank())
+        {
+            highlightInput(true);
+            return;
+        }
+        highlightInput(false);
 
         sendAnswer(answerInput.getText());
 
@@ -447,6 +461,23 @@ public class QuizController
         if (last instanceof Button && minusOneSize > RESULT_MIN_CHILD_COUNT)
         {
             resultChildren.subList(RESULT_HEADER_SIZE, minusOneSize).clear();
+        }
+    }
+
+    /**
+     * Toggles the border color on the text input.
+     *
+     * @param shouldHighlight True if the highlight should be visible.
+     */
+    private void highlightInput(final boolean shouldHighlight)
+    {
+        if (shouldHighlight)
+        {
+            this.answerInput.setStyle("-fx-border-color:" + ANSWER_BORDER_COLOR_ERROR);
+        }
+        else
+        {
+            this.answerInput.setStyle("-fx-border-color: none");
         }
     }
 

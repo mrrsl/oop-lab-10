@@ -1,10 +1,6 @@
 Label#titleText {
-    -fx-font-size: large;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-}
-
-BorderPane#mainContainer center VBox {
-    -fx-padding: 20;
 }
 
 #answerInput {
