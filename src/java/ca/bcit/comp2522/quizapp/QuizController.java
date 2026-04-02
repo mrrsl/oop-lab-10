@@ -49,6 +49,9 @@ public class QuizController
     private static final String WELCOME_CAPTION = "Press " + START_BUTTON_TEXT+ " to get the first question!";
     private static final String TEXT_INPUT_PROMPT = "Answer here";
 
+    private static final String RESULT_BUTTON_PREVIEW_TEXT = "See results";
+    private static final String RESULT_BUTTON_NEW_ROUND = "Start a new quiz";
+
     private static final String RESULT_CORRECT_MARKER = "O";
     private static final String RESULT_WRONG_MARKER = "X";
     private static final int RESULT_FOOTER_SIZE = 1;
@@ -60,6 +63,9 @@ public class QuizController
 
     /* Reference to the application instance. Should not be null and will cause a run-time error if any events are caught while null. */
     private QuizApp appInstance;
+
+    /* Main scene for rendering quiz questions. */
+    private Scene quizScene;
 
     // Non-attached containers for displaying quiz results:
 
@@ -99,10 +105,19 @@ public class QuizController
     /**
      * Initializes hidden elements that will be swapped in depending on the mode of the display.
      */
-    QuizController()
+    public QuizController()
     {
+        final Button newQuizButton;
+        final List<Node> resultChildren;
+
         this.resultsContainer = new VBox();
         this.resultsScene = new Scene(this.resultsContainer);
+
+        resultChildren = this.resultsContainer.getChildren();
+        newQuizButton = new Button("New Quiz");
+
+        newQuizButton.setOnAction(this::setNewQuizScene);
+        resultChildren.addLast(newQuizButton);
     }
 
     /**
@@ -182,6 +197,8 @@ public class QuizController
 
     /**
      * Submit answer and gray out the button to emphasize the next question button.
+     * Additionally, the controller will check with app if the user has answered all questions in the current quiz round.
+     * If the quiz is 'completed' the next button should render and result screen with a restart button instead of a new question.
      *
      * @param event Used to get the current Stage.
      */
@@ -196,7 +213,7 @@ public class QuizController
         // Button should move on to results screen or go to next question
         if (quizFinished)
         {
-            setResultScene(event);
+            this.prepResultScreen();
         }
         else
         {
@@ -204,6 +221,25 @@ public class QuizController
             this.nextButton.setDisable(false);
             this.answerInput.setDisable(true);
         }
+    }
+
+    /*
+     * Adjust elements within the regular quiz scene to prompt the user to advance to a results page:
+     * - Hide and disable answer input
+     * - Hide and disable the next question button
+     * - Change the multibutton to advance to the result screne
+     */
+    private void prepResultScreen()
+    {
+        // Change element visibility here
+        this.answerInput.setDisable(true);
+        this.answerInput.setVisible(false);
+        this.nextButton.setDisable(true);
+        this.nextButton.setVisible(false);
+
+        // Change button functionality here.
+        this.multiButton.setText(RESULT_BUTTON_PREVIEW_TEXT);
+        this.multiButton.setOnAction(this::setResultScene);
     }
 
     /**
@@ -280,9 +316,15 @@ public class QuizController
 
     /**
      * Prepares the window scene to let the user initiate a new quiz.
+     *
+     * @param event Used to retrieve current Stage instance.
      */
-    void setNewQuizScene()
+    void setNewQuizScene(final Event event)
     {
+        final Stage currentStage;
+
+        currentStage = getStageFromEvent(event);
+
         // Reset question number display
         this.questionNumberLabel.setText(null);
         this.questionNumberLabel.setVisible(false);

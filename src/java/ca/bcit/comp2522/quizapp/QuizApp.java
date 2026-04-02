@@ -19,7 +19,18 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 
 /**
- * Handles the quiz presentation logic.
+ * Handles these quiz responsibilities:
+ * <ul>
+ * <li>Tracks questions asked and user's answers</li>
+ * <li>Determines if quiz has been completed</li>
+ * <li>Manages the question bank and determines the questions that will be asked</li>
+ * </ul>
+ * Important methods for the scene quiz controller:
+ * <ul>
+ * <li>reset(): Resets the number of questions asked</li>
+ * <li>advanceQuestion(): Move on the next question and get the text for it</li>
+ * <li>shouldReset(): Controller should call this to see if quiz is complete</li>
+ * </ul>
  *
  * @author Morris Li
  * @author Raphael Berthaud
@@ -189,6 +200,11 @@ public class QuizApp
      */
     public String advanceQuestion()
     {
+        if (this.answeredList.size() >= QUESTIONS_PER_ROUND)
+        {
+            throw new ExceededQuestionLimitException(QUESTIONS_PER_ROUND);
+        }
+
         final int nextQuestionIndex;
 
         nextQuestionIndex = rgen.nextInt(
@@ -225,7 +241,10 @@ public class QuizApp
         final AskedQuestion recordEntry;
 
         result = this.presentedQuestion.checkAnswer(guess);
-        recordEntry = new AskedQuestion(this.presentedQuestion, result);
+        recordEntry = new AskedQuestion(
+                this.presentedQuestion,
+                result
+        );
 
         if (result)
         {
@@ -258,7 +277,7 @@ public class QuizApp
      */
     public boolean shouldReset()
     {
-        return this.questionNumber >= QUESTIONS_PER_ROUND;
+        return this.answeredList.size() >= QUESTIONS_PER_ROUND;
     }
 
     /**
@@ -269,6 +288,16 @@ public class QuizApp
     public List<AskedQuestion> getQuestionHistory()
     {
         return this.answeredList;
+    }
+
+    /**
+     * Getter for points scored by the player.
+     *
+     * @return Points scored on current quiz.
+     */
+    public int getPlayerScore()
+    {
+        return this.playerScore;
     }
 
     /**
