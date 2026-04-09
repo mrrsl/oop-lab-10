@@ -25,9 +25,9 @@ public record Question(String question,
         final String uncasedGuess;
         final String uncasedAnswer;
 
-        uncasedAnswer = guess.toLowerCase();
-        uncasedGuess = this.answer.toLowerCase();
+        uncasedGuess = guess.toLowerCase().trim();
+        uncasedAnswer = this.answer.toLowerCase().trim();
 
-        return uncasedGuess.contains(uncasedAnswer);
+        return uncasedGuess.equals(uncasedAnswer);
     }
 }

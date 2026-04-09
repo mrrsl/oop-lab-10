@@ -113,13 +113,14 @@ public class QuizController
         final List<Node> resultChildren;
 
         this.resultsContainer = new VBox();
-        this.resultsScene = new Scene(this.resultsContainer);
+        this.resultsContainer.setSpacing(10);
+        this.resultsScene = new Scene(this.resultsContainer, 600, 400);
 
         resultChildren = this.resultsContainer.getChildren();
         newQuizButton = new Button("New Quiz");
 
         newQuizButton.setOnAction(this::setNewQuizScene);
-        resultChildren.addLast(newQuizButton);
+        resultChildren.add(newQuizButton);
     }
 
     /**
@@ -157,7 +158,11 @@ public class QuizController
     @FXML
     void onStartButtonClick(final Event event)
     {
-        // Update button to submit functionality
+        final Stage currentStage;
+
+        currentStage = getStageFromEvent(event);
+        this.quizScene = currentStage.getScene();
+
         this.multiButton.setText(SUBMIT_BUTTON_TEXT);
         this.multiButton.setOnAction(this::onSubmitButtonClick);
 
@@ -339,22 +344,27 @@ public class QuizController
 
         currentStage = getStageFromEvent(event);
 
-        // Reset question number display
+        this.appInstance.reset();
+
         this.questionNumberLabel.setText(null);
         this.questionNumberLabel.setVisible(false);
 
-        // Reset answer input
         this.answerInput.setVisible(false);
+        this.answerInput.setDisable(false);
         this.answerInput.setText(null);
 
-        // Set welcome messages
         this.titleText.setText(WELCOME_MESSAGE);
         this.titleCaption.setText(WELCOME_CAPTION);
+        this.titleCaption.setVisible(true);
 
-        // Set up the start button
+        this.nextButton.setVisible(false);
+        this.nextButton.setDisable(false);
+
         this.multiButton.setOnAction(this::onStartButtonClick);
         this.multiButton.setText(START_BUTTON_TEXT);
         this.multiButton.setDisable(false);
+
+        currentStage.setScene(this.quizScene);
     }
 
     /**
@@ -368,8 +378,6 @@ public class QuizController
         final List<Node> resultChildren;
         final Stage currentStage;
 
-        final HBox resultCount;
-        final List<Node> resultCountChildren;
         final Label resultLabel;
 
         final int totalCount;
@@ -381,48 +389,42 @@ public class QuizController
         resultChildren = resultsContainer.getChildren();
         currentStage = getStageFromEvent(event);
 
-        resultCount = new HBox();
-        resultCountChildren = resultCount.getChildren();
-
         totalCount = results.size();
-        correctCount = STARTING_COUNT;
+        correctCount = 0;
 
-        currentStage.setScene(this.resultsScene);
-
-        // Generate a HBox row to display a result in the format of "[O|X] Question" and append it to a VBox
         for (final QuizApp.AskedQuestion q : results)
         {
             final Question questionInfo;
-            final Label question;
-            final Label answer;
+            final Label rowLabel;
             final HBox row;
             final List<Node> rowChildren;
+            final String rowText;
 
             questionInfo = q.questionAsked();
-            question = new Label(questionInfo.question());
 
             if (q.wasCorrect())
             {
-                answer = new Label(RESULT_CORRECT_MARKER);
+                rowText = "[O] " + questionInfo.question();
+                correctCount++;
             }
             else
             {
-                answer = new Label(RESULT_WRONG_MARKER);
+                rowText = "[X] " + questionInfo.question()
+                        + " | Correct answer: " + questionInfo.answer();
             }
 
+            rowLabel = new Label(rowText);
             row = new HBox();
             rowChildren = row.getChildren();
 
-            rowChildren.add(answer);
-            rowChildren.add(question);
+            rowChildren.add(rowLabel);
             resultChildren.add(row);
-
-            correctCount++;
         }
 
-        resultLabel = new Label("You got: " + correctCount + '/' + totalCount);
-        resultCountChildren.add(resultLabel);
-        resultChildren.add(resultCount);
+        resultLabel = new Label("You got: " + correctCount + "/" + totalCount);
+        resultChildren.add(resultLabel);
+
+        currentStage.setScene(this.resultsScene);
     }
 
     /*
@@ -451,16 +453,12 @@ public class QuizController
     private void clearResults()
     {
         final List<Node> resultChildren;
-        final Node last;
-        final int minusOneSize;
 
         resultChildren = this.resultsContainer.getChildren();
-        last = resultChildren.getLast();
-        minusOneSize = resultChildren.size() - RESULT_FOOTER_SIZE;
 
-        if (last instanceof Button && minusOneSize > RESULT_MIN_CHILD_COUNT)
+        while (resultChildren.size() > 1)
         {
-            resultChildren.subList(RESULT_HEADER_SIZE, minusOneSize).clear();
+            resultChildren.remove(0);
         }
     }
 

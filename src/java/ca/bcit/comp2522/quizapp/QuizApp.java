@@ -185,10 +185,10 @@ public class QuizApp
         return questionList;
     }
 
-    /*
+    /**
      * Starts a new round with QUESTION_PER_ROUND questions.
      */
-    private void reset()
+    public void reset()
     {
         this.answeredList.clear();
         this.playerScore = SCORE_INITIAL;
