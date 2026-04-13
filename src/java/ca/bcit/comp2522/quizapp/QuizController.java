@@ -40,7 +40,6 @@ public class QuizController
 {
     private static final String SUBMIT_BUTTON_TEXT = "Submit";
     private static final String START_BUTTON_TEXT = "Start";
-    private static final String NEXT_BUTTON_TEXT = "Next Question";
 
     private static final String CORRECT_GUESS_TEXT = "CORRECT";
     private static final String WRONG_GUESS_TEXT = "WRONG, Correct answer is: ";
@@ -56,9 +55,6 @@ public class QuizController
 
     private static final String RESULT_CORRECT_MARKER = "O";
     private static final String RESULT_WRONG_MARKER = "X";
-    private static final int RESULT_FOOTER_SIZE = 1;
-    private static final int RESULT_HEADER_SIZE = 0;
-    private static final int RESULT_MIN_CHILD_COUNT = 0;
 
     private static final int QUESTION_STARTING_NUMBER = 1;
     private static final int STARTING_COUNT = 0;
@@ -379,6 +375,7 @@ public class QuizController
         final Stage currentStage;
 
         final Label resultLabel;
+        final Button playAgain;
 
         final int totalCount;
         int correctCount;
@@ -390,7 +387,7 @@ public class QuizController
         currentStage = getStageFromEvent(event);
 
         totalCount = results.size();
-        correctCount = 0;
+        correctCount = STARTING_COUNT;
 
         for (final QuizApp.AskedQuestion q : results)
         {
@@ -404,12 +401,12 @@ public class QuizController
 
             if (q.wasCorrect())
             {
-                rowText = "[O] " + questionInfo.question();
+                rowText = "[" + RESULT_CORRECT_MARKER + "] " + questionInfo.question();
                 correctCount++;
             }
             else
             {
-                rowText = "[X] " + questionInfo.question()
+                rowText = "[" + RESULT_WRONG_MARKER + "] " + questionInfo.question()
                         + " | Correct answer: " + questionInfo.answer();
             }
 
@@ -422,7 +419,11 @@ public class QuizController
         }
 
         resultLabel = new Label("You got: " + correctCount + "/" + totalCount);
+        playAgain = new Button(RESULT_BUTTON_NEW_ROUND);
+
+        playAgain.setOnAction(this::setNewQuizScene);
         resultChildren.add(resultLabel);
+        resultChildren.add(playAgain);
 
         currentStage.setScene(this.resultsScene);
     }
@@ -456,9 +457,9 @@ public class QuizController
 
         resultChildren = this.resultsContainer.getChildren();
 
-        while (resultChildren.size() > 1)
+        while (!resultChildren.isEmpty())
         {
-            resultChildren.remove(0);
+            resultChildren.removeFirst();
         }
     }
 
